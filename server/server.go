@@ -7,14 +7,17 @@ import (
 	"github.com/lokesh2201013/Diary/database"
 	"github.com/lokesh2201013/Diary/router"
 	"github.com/joho/godotenv"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 func init() {
-	database.ConnectDB()
-	godotenv.Load(".env");err!=nil{
-		log.Fatal("error in loding env file")
+	// Load environment variables from the .env file
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal("Error in loading env file")
 	}
-}
 
+	// Connect to the database
+	database.ConnectDB()
+}
 func main() {
 	sqlDb, err := database.DBConn.DB()
 	if err != nil {
@@ -23,6 +26,16 @@ func main() {
 	defer sqlDb.Close()
 
 	app := fiber.New()
+	// Initialize default config
+app.Use(cors.New())
+
+// Or extend your config for customization
+app.Use(cors.New(cors.Config{
+    AllowOrigins: "*",
+    AllowHeaders: "Origin, Content-Type, Accept",
+}))
+
+
     app.Use(logger.New( ))
   router.SetUpRoutes(app)
 	// Start the server and log any errors

@@ -7,6 +7,7 @@ import (
 
 func SetUpRoutes(app *fiber.App){
 	app.Get("/",controller.DiaryList)
+	app.Get("/:id",controller.DiaryDetail)
 	app.Post("/",controller.DiaryCreate)
 	app.Put("/:id",controller.DiaryUpdate)
 	app.Delete("/:id",controller.DiaryDelete)

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -13,6 +14,7 @@ context:=fiber.Map{
 	"statusText": "ok",
         "msg":"Diary List",
 }
+time.Sleep(time.Millisecond*500)
 db:=database.DBConn
 var records []model.Diary
 db.Find(&records)
@@ -20,6 +22,42 @@ context["diary_records"]=records
 c.Status(200)
 return c.JSON(context)	
 }
+func DiaryDetail(c *fiber.Ctx) error {
+	context := fiber.Map{
+		"statusText": "ok",
+		"msg":        "Diary Detail",
+	}
+
+	id := c.Params("id") // Capture the 'id' from the URL parameters
+
+	var record model.Diary
+
+	// Use the 'id' to find the record and store the result
+	result := database.DBConn.First(&record, id)
+
+	// If no record is found, log it and return a 404 response
+	if record.ID == 0 {
+		log.Println("Record not found")
+		context["msg"] = "Record Not Found"
+		c.Status(404)
+		return c.JSON(context)
+	}
+
+	// Check if there's an error in the query result
+	if result.Error != nil {
+		context["msg"] = "Something Went Wrong"
+		c.Status(400)
+		return c.JSON(context)
+	}
+
+	context["record"] = record
+	context["msg"] = "Diary Detail"
+	context["statusText"] = "Ok"
+
+	c.Status(200)
+	return c.JSON(context)
+}
+
 
 func DiaryCreate(c *fiber.Ctx)error{
 	context:=fiber.Map{
@@ -87,36 +125,37 @@ return c.JSON(context)
 }
 
 
-func DiaryDelete(c *fiber.Ctx)error{
-	context:=fiber.Map{
+func DiaryDelete(c *fiber.Ctx) error {
+	context := fiber.Map{
 		"statusText": "ok",
-        "msg":"Diary Delete",
+		"msg":        "Diary Delete",
 	}
 
-	id:=c.Params("id")
+	id := c.Params("id") // Capture the 'id' from the URL parameters
 
 	var record model.Diary
 
-	database.DBConn.First(&record)
+	// Use the 'id' to find the record
+	database.DBConn.First(&record, id)
 
-	if record.ID==0{
-		log.Println("Record not Found ")
-	     context["msg"]="Record Not Found"
-		 return c.JSON(context)
-		 c.Status(400)
-	}
-
-    result:=database.DBConn.Delete(record)
-    
-	if result.Error !=nil{
-		context["msg"]="Something Went Wrong"
+	if record.ID == 0 {
+		log.Println("Record not found")
+		context["msg"] = "Record Not Found"
 		c.Status(400)
 		return c.JSON(context)
 	}
-	
-	context["msg"]="Record Deleted Successfully"
-	context["statusText"]="Ok"
 
-c.Status(200)
-return c.JSON(context)
+	result := database.DBConn.Delete(&record)
+
+	if result.Error != nil {
+		context["msg"] = "Something Went Wrong"
+		c.Status(400)
+		return c.JSON(context)
+	}
+
+	context["msg"] = "Record Deleted Successfully"
+	context["statusText"] = "Ok"
+
+	c.Status(200)
+	return c.JSON(context)
 }

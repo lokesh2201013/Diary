@@ -10,6 +10,6 @@ type Diary struct{
     Post string  `json:"post" gorm:"not null;column:post;type:varchar(255)"`
     Year int `json:"year" gorm:"not null;column:year"`
     Month int `json:"month" gorm:"not null;column:month"`
-    Day int `json:"day" gorm:"not null;column:day"`
+    Day int `json:"day" gorm:"not null;column:day"`//this is date
 }
  

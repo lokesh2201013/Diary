@@ -14,9 +14,9 @@ var DBConn *gorm.DB
 
 func ConnectDB() {
 	// Fetch environment variables
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
+	user := os.Getenv("user")
+	password := os.Getenv("password")
+	dbname := os.Getenv("dbname")
 
 	// Construct the DSN (Data Source Name)
 	dsn := "host=localhost port=5432 user=" + user + " password=" + password + " dbname=" + dbname + " sslmode=disable"
