@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Header = () => {
-  const { loggedIn, user } = useSelector((state) => state.auth);
+  //const { loggedIn, user } = useSelector((state) => state.auth);
 
   return (
     <>
@@ -29,7 +29,7 @@ const Header = () => {
             <li>
               <Link to="/contact">Contact</Link>
             </li>
-            <li>
+     {/*       <li>
               {loggedIn ? (
                 <>
                   Welcome back {user.email}
@@ -38,7 +38,7 @@ const Header = () => {
               ) : (
                 <Link to="/login">Login</Link>
               )}
-            </li>
+            </li>*/}
           </ul>
         </div>
       </Container>
