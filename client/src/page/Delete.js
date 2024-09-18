@@ -15,29 +15,63 @@ const Delete = () => {
 
       if (response.status === 200) {
         navigate("/", {
-          state: "Record deleted succussfully.",
+          state: "Record deleted successfully.",
         });
       }
     } catch (error) {
       console.log(error);
     }
+  };
 
-    // console.log("Inside handledelete");
+  // Inline CSS styles
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    backgroundColor: '#f9f9f9'
+  };
+
+  const headerStyle = {
+    fontSize: '2rem',
+    color: '#850c62',
+    textAlign: 'center',
+    marginBottom: '2rem'
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#e74c3c',
+    border: 'none',
+    color: 'white',
+    padding: '0.75rem 1.5rem',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease'
+  };
+
+  const buttonHoverStyle = {
+    backgroundColor: '#c0392b'
   };
 
   return (
-    <>
-      <Container>
-        <Row>
-          <h1>Are you sure to delete this record?</h1>
-          <Col xs="12" className="py-5">
-            <button className="btn btn-danger py-2 my-2" onClick={handleDelete}>
-              Proceed
-            </button>
-          </Col>
-        </Row>
-      </Container>
-    </>
+    <Container style={containerStyle}>
+      <Row>
+        <h1 style={headerStyle}>Are you sure you want to delete this record?</h1>
+        <Col xs="12" className="py-5 text-center">
+          <button
+            style={buttonStyle}
+            onClick={handleDelete}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = buttonHoverStyle.backgroundColor}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = buttonStyle.backgroundColor}
+          >
+            Proceed
+          </button>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

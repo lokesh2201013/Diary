@@ -31,6 +31,7 @@ const Diary = () => {
       <Row>
         <Col xs="12"><h1>{apiData.title}</h1></Col>
         <Col xs="12"><p>{apiData.post}</p></Col>
+        <Col xs="12"><p>{apiData.date}/{apiData.month}/{apiData.year}</p></Col>
       </Row>
     </Container>
   )
