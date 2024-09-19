@@ -65,7 +65,7 @@ const Home = () => {
                     {apiData.map((record) => (
                         <Col key={record.id} xs="12" sm="6" md="4" className="mb-4">
                             <Card className="shadow-sm card-transition">
-                                <Card.Img variant="top" src={`${process.env.REACT_APP_API_ROOT}/${record.image}`} />
+                                <Card.Img variant="top" src={`${process.env.REACT_APP_API}/${record.image}`} />
                                 <Card.Body>
                                     <Card.Title>{record.title || 'Untitled'}</Card.Title>
                                     <Card.Text>{record.post}</Card.Text>

@@ -73,7 +73,7 @@ func DiaryCreate(c *fiber.Ctx)error{
 		context["msg"]="Something went wrong"
 	}
 
-	result:=database.DBConn.Create(record)
+	result:=database.DBConn.Create(&record)
 	
 	if result.Error!=nil{
 		log.Println("Error n saving data")

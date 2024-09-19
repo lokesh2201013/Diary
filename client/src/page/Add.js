@@ -7,8 +7,16 @@ import { useNavigate } from "react-router-dom";
 const Add = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
     const { register, handleSubmit, formState: { errors } } = useForm();
+
+    const convertFileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
 
     const saveForm = async (data) => {
         setLoading(true);
@@ -19,22 +27,30 @@ const Add = () => {
         const day = currentDate.getDate();
         const year = currentDate.getFullYear();
 
-        const formData = new FormData();
-        formData.append("title", data.title);
-        formData.append("post", data.post);
-        formData.append("year", year);
-        formData.append("month", month);
-        formData.append("day", day);
-
+        // Convert image file to Base64
+        let imageBase64 = null;
         if (data.image && data.image[0]) {
-            formData.append("image", data.image[0]);
+            imageBase64 = await convertFileToBase64(data.image[0]);
         }
+
+        const jsonData = {
+            title: data.title,
+            post: data.post,
+            year,
+            month,
+            day,
+            //image: imageBase64, // Send image as Base64 string
+        };
 
         try {
             const apiUrl = process.env.REACT_APP_API;
-            const response = await axios.post(apiUrl, formData);
-            if (response.status === 201) {
-                navigate("/");
+            const response = await axios.post(apiUrl, jsonData, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.status === 200) {
+                navigate("/"); // Navigate back to the home page after successful submission
             }
         } catch (error) {
             console.log("Error response:", error.response);
@@ -43,6 +59,7 @@ const Add = () => {
         }
     };
 
+    // Display a loading spinner while the form is being submitted
     if (loading) {
         return (
             <Container className="spinner">
@@ -76,6 +93,7 @@ const Add = () => {
                         <textarea
                             className={`form-control ${errors.post ? "is-invalid" : ""}`}
                             placeholder="Please enter content"
+                            rows="5" // Increase rows if necessary for better visibility
                             {...register("post", {
                                 required: "Post Content is required."
                             })}

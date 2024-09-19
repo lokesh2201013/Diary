@@ -39,7 +39,7 @@ const Edit = () => {
     data.file = data.image[0];
     data.image = null;
     try {
-      const apiUrl = process.env.REACT_APP_API_ROOT + "/" + params.id;
+      const apiUrl = process.env.REACT_APP_API + "/" + params.id;
       const response = await axios.put(apiUrl, data, {
         headers: {
           "Content-Type": "multipart/form-data",
