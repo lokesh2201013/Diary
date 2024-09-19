@@ -5,23 +5,27 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	_"gorm.io/gorm"
 
 	"github.com/lokesh2201013/Diary/database"
 	"github.com/lokesh2201013/Diary/model"
 )
-func DiaryList(c *fiber.Ctx) error{
-context:=fiber.Map{
-	"statusText": "ok",
-        "msg":"Diary List",
+
+func DiaryList(c *fiber.Ctx) error {
+	context := fiber.Map{
+		"statusText": "ok",
+		"msg":        "Diary List",
+	}
+
+	time.Sleep(time.Millisecond * 500)
+	db := database.DBConn
+	var records []model.Diary
+	db.Find(&records)
+	context["diary_records"] = records
+	c.Status(200)
+	return c.JSON(context)
 }
-time.Sleep(time.Millisecond*500)
-db:=database.DBConn
-var records []model.Diary
-db.Find(&records)
-context["diary_records"]=records
-c.Status(200)
-return c.JSON(context)	
-}
+
 func DiaryDetail(c *fiber.Ctx) error {
 	context := fiber.Map{
 		"statusText": "ok",
@@ -58,72 +62,83 @@ func DiaryDetail(c *fiber.Ctx) error {
 	return c.JSON(context)
 }
 
-
-func DiaryCreate(c *fiber.Ctx)error{
-	context:=fiber.Map{
+func DiaryCreate(c *fiber.Ctx) error {
+	context := fiber.Map{
 		"statusText": "ok",
-        "msg":"Diary Create",
+		"msg":        "Diary Create",
 	}
 
+	record := new(model.Diary)
 
-	record:=new(model.Diary)
-
-	if err := c.BodyParser(&record);err!=nil {
+	if err := c.BodyParser(record); err != nil {
 		log.Println("Error in parsing request")
-		context["msg"]="Something went wrong"
-	}
-
-	result:=database.DBConn.Create(&record)
-	
-	if result.Error!=nil{
-		log.Println("Error n saving data")
-		context["statusText"]=""
-		context["msg"]="Something went wrong"
-	}
-	
-	context["msg"]="Record Saved Successfully"
-	
-	context["data"]=record
-	
-	c.Status(200)
-	
-	return c.JSON(context)
-}
-
-func DiaryUpdate(c *fiber.Ctx)error{
-	context:=fiber.Map{
-		"statusText": "ok",
-        "msg":"Diary Update",
-	}
-
-	id:=c.Params("id")
-
-	var record model.Diary
-
-	database.DBConn.First(&record,id)
-
-	if record.ID==0{
-		log.Println("Record not Found ")
+		context["msg"] = "Something went wrong"
 		c.Status(400)
-		context["statusText"]=""
-		context["msg"]="Record Not Found"
 		return c.JSON(context)
 	}
 
-	if err:= c.BodyParser(&record);err!=nil{
-		log.Println("Error in parsing Request")
+	result := database.DBConn.Create(record)
+
+	if result.Error != nil {
+		log.Println("Error in saving data")
+		context["statusText"] = ""
+		context["msg"] = "Something went wrong"
+		c.Status(400)
+		return c.JSON(context)
 	}
 
-	result:= database.DBConn.Save(record)
+	context["msg"] = "Record Saved Successfully"
+	context["data"] = record
 
-	if result.Error!=nil{
-		log.Println("Error in Saving Data")
-	}
-
-c.Status(200)
-return c.JSON(context)
+	c.Status(200)
+	return c.JSON(context)
 }
 
+func DiaryUpdate(c *fiber.Ctx) error {
+	context := fiber.Map{
+		"statusText": "ok",
+		"msg":        "Diary Update",
+	}
+
+	id := c.Params("id")
+
+	var record model.Diary
+
+	// Fetch the record first
+	database.DBConn.First(&record, id)
+
+	if record.ID == 0 {
+		log.Println("Record not Found")
+		c.Status(404)
+		context["statusText"] = ""
+		context["msg"] = "Record Not Found"
+		return c.JSON(context)
+	}
+
+	// Parse the body to update fields of the record
+	if err := c.BodyParser(&record); err != nil {
+		log.Println("Error in parsing request")
+		context["msg"] = "Something went wrong"
+		c.Status(400)
+		return c.JSON(context)
+	}
+
+	// Save updated record
+	result := database.DBConn.Save(&record)
+
+	if result.Error != nil {
+		log.Println("Error in saving data")
+		context["msg"] = "Something went wrong"
+		c.Status(400)
+		return c.JSON(context)
+	}
+
+	context["msg"] = "Record Updated Successfully"
+	context["data"] = record
+
+	c.Status(200)
+	return c.JSON(context)
+}
 
 func DiaryDelete(c *fiber.Ctx) error {
 	context := fiber.Map{
@@ -138,12 +153,12 @@ func DiaryDelete(c *fiber.Ctx) error {
 	// Use the 'id' to find the record
 	database.DBConn.First(&record, id)
 
-	if record.ID == 0 {
-		log.Println("Record not found")
-		context["msg"] = "Record Not Found"
-		c.Status(400)
-		return c.JSON(context)
-	}
+	//if record.ID == 0 {
+	//	log.Println("Record not found")
+	//	context["msg"] = "Record Not Found"
+	//	c.Status(400)
+	//	return c.JSON(context)
+	//}
 
 	result := database.DBConn.Delete(&record)
 
@@ -152,6 +167,14 @@ func DiaryDelete(c *fiber.Ctx) error {
 		c.Status(400)
 		return c.JSON(context)
 	}
+
+	// Decrement IDs of records greater than the deleted one
+	//if err := database.DBConn.Model(&model.Diary{}).Where("id > ?", id).
+	//	Update("id", gorm.Expr("id - 1")).Error; err != nil {
+	//	context["msg"] = "Failed to update record IDs"
+	//	c.Status(400)
+	//	return c.JSON(context)
+	//}
 
 	context["msg"] = "Record Deleted Successfully"
 	context["statusText"] = "Ok"
