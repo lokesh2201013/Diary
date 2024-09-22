@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Container } from "react-bootstrap";
+import { Container,Col,Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);

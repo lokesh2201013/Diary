@@ -9,76 +9,77 @@ const Login = () => {
 
   const saveForm = async (data) => {
     try {
-      const apiUrl = 'https://localhost:8001/login'; // Replace with your API URL
+      const apiUrl = process.env.REACT_APP_AUTH_API + "/login";
+      console.log("Data being sent:", data);
       const response = await axios.post(apiUrl, data);
 
+      console.log("Response received:", response);
+      
       if (response.status === 200) {
         const responseData = response.data;
         localStorage.setItem("token", responseData.token);
         navigate("/", { state: responseData.message });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error in request:", error);
     }
   };
 
-  const styles = {
-    container: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#f7f8fa',
-    },
-    formBox: {
-      width: '360px',
-      padding: '30px',
-      backgroundColor: '#ffffff',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      borderRadius: '8px',
-      transition: 'box-shadow 0.3s ease-in-out',
-      textAlign: 'center',
-    },
-    title: {
-      fontSize: '24px',
-      marginBottom: '20px',
-      color: '#333',
-      fontWeight: '600',
-    },
-    input: {
-      width: '100%',
-      padding: '12px',
-      marginBottom: '15px',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-      transition: 'border-color 0.3s ease-in-out',
-      fontSize: '16px',
-    },
-    inputFocus: {
-      borderColor: '#007bff',
-    },
-    errorText: {
-      color: '#ff4d4d',
-      fontSize: '14px',
-      margin: '5px 0',
-    },
-    submitButton: {
-      width: '100%',
-      padding: '12px',
-      marginTop: '15px',
-      borderRadius: '4px',
-      backgroundColor: '#007bff',
-      color: '#ffffff',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '16px',
-      fontWeight: '500',
-      transition: 'background-color 0.3s ease-in-out',
-    },
-    submitButtonHover: {
-      backgroundColor: '#0056b3',
-    },
-  };
+  const styles = { container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    backgroundColor: '#f7f8fa',
+  },
+  formBox: {
+    width: '360px',
+    padding: '30px',
+    backgroundColor: '#ffffff',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    borderRadius: '8px',
+    transition: 'box-shadow 0.3s ease-in-out',
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: '24px',
+    marginBottom: '20px',
+    color: '#333',
+    fontWeight: '600',
+  },
+  input: {
+    width: '100%',
+    padding: '12px',
+    marginBottom: '15px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    transition: 'border-color 0.3s ease-in-out',
+    fontSize: '16px',
+  },
+  inputFocus: {
+    borderColor: '#007bff',
+  },
+  errorText: {
+    color: '#ff4d4d',
+    fontSize: '14px',
+    margin: '5px 0',
+  },
+  submitButton: {
+    width: '100%',
+    padding: '12px',
+    marginTop: '15px',
+    borderRadius: '4px',
+    backgroundColor: '#007bff',
+    color: '#ffffff',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: '500',
+    transition: 'background-color 0.3s ease-in-out',
+  },
+  submitButtonHover: {
+    backgroundColor: '#0056b3',
+  },  };
 
   return (
     <div style={styles.container}>
@@ -117,3 +118,4 @@ const Login = () => {
 };
 
 export default Login;
+

@@ -11,6 +11,6 @@ type Diary struct{
     Year int `json:"year" gorm:"not null;column:year"`
     Month int `json:"month" gorm:"not null;column:month"`
     Day int `json:"day" gorm:"not null;column:day"`//this is date
-    //Image string `json:"image" gorm:"column:image;type:varchar(255)"`
+    Image string `json:"image" gorm:"null;column:image;size:255"`
 }
  

@@ -2,14 +2,25 @@ package controller
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	_"gorm.io/gorm"
-
 	"github.com/lokesh2201013/Diary/database"
 	"github.com/lokesh2201013/Diary/model"
 )
+
+const uploadDir = "./static/uploads/"
+
+func init() {
+	// Create the upload directory if it doesn't exist
+	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+		err := os.MkdirAll(uploadDir, os.ModePerm)
+		if err != nil {
+			log.Fatalf("Failed to create upload directory: %v", err)
+		}
+	}
+}
 
 func DiaryList(c *fiber.Ctx) error {
 	context := fiber.Map{
@@ -32,14 +43,11 @@ func DiaryDetail(c *fiber.Ctx) error {
 		"msg":        "Diary Detail",
 	}
 
-	id := c.Params("id") // Capture the 'id' from the URL parameters
+	id := c.Params("id")
 
 	var record model.Diary
-
-	// Use the 'id' to find the record and store the result
 	result := database.DBConn.First(&record, id)
 
-	// If no record is found, log it and return a 404 response
 	if record.ID == 0 {
 		log.Println("Record not found")
 		context["msg"] = "Record Not Found"
@@ -47,7 +55,6 @@ func DiaryDetail(c *fiber.Ctx) error {
 		return c.JSON(context)
 	}
 
-	// Check if there's an error in the query result
 	if result.Error != nil {
 		context["msg"] = "Something Went Wrong"
 		c.Status(400)
@@ -55,9 +62,6 @@ func DiaryDetail(c *fiber.Ctx) error {
 	}
 
 	context["record"] = record
-	context["msg"] = "Diary Detail"
-	context["statusText"] = "Ok"
-
 	c.Status(200)
 	return c.JSON(context)
 }
@@ -77,11 +81,21 @@ func DiaryCreate(c *fiber.Ctx) error {
 		return c.JSON(context)
 	}
 
-	result := database.DBConn.Create(record)
+	file, err := c.FormFile("file")
+	if err == nil && file.Size > 0 {
+		filename := "./static/uploads/" + file.Filename
+		if err := c.SaveFile(file, filename); err != nil {
+			log.Println("Error in file uploading...", err)
+			context["msg"] = "File upload failed"
+			c.Status(500)
+			return c.JSON(context)
+		}
+		record.Image = filename
+	}
 
+	result := database.DBConn.Create(record)
 	if result.Error != nil {
-		log.Println("Error in saving data")
-		context["statusText"] = ""
+		log.Println("Error in saving data", result.Error)
 		context["msg"] = "Something went wrong"
 		c.Status(400)
 		return c.JSON(context)
@@ -89,7 +103,6 @@ func DiaryCreate(c *fiber.Ctx) error {
 
 	context["msg"] = "Record Saved Successfully"
 	context["data"] = record
-
 	c.Status(200)
 	return c.JSON(context)
 }
@@ -101,33 +114,38 @@ func DiaryUpdate(c *fiber.Ctx) error {
 	}
 
 	id := c.Params("id")
-
 	var record model.Diary
 
-	// Fetch the record first
 	database.DBConn.First(&record, id)
-
 	if record.ID == 0 {
 		log.Println("Record not Found")
-		c.Status(404)
-		context["statusText"] = ""
 		context["msg"] = "Record Not Found"
+		c.Status(404)
 		return c.JSON(context)
 	}
 
-	// Parse the body to update fields of the record
 	if err := c.BodyParser(&record); err != nil {
-		log.Println("Error in parsing request")
+		log.Println("Error in parsing request", err)
 		context["msg"] = "Something went wrong"
 		c.Status(400)
 		return c.JSON(context)
 	}
 
-	// Save updated record
-	result := database.DBConn.Save(&record)
+	file, err := c.FormFile("file")
+	if err == nil && file.Size > 0 {
+		filename := "static/uploads/" + file.Filename
+		if err := c.SaveFile(file, filename); err != nil {
+			log.Println("Error in file uploading...", err)
+			context["msg"] = "File upload failed"
+			c.Status(500)
+			return c.JSON(context)
+		}
+		record.Image = filename
+	}
 
+	result := database.DBConn.Save(&record)
 	if result.Error != nil {
-		log.Println("Error in saving data")
+		log.Println("Error in saving data", result.Error)
 		context["msg"] = "Something went wrong"
 		c.Status(400)
 		return c.JSON(context)
@@ -135,7 +153,6 @@ func DiaryUpdate(c *fiber.Ctx) error {
 
 	context["msg"] = "Record Updated Successfully"
 	context["data"] = record
-
 	c.Status(200)
 	return c.JSON(context)
 }
@@ -146,39 +163,30 @@ func DiaryDelete(c *fiber.Ctx) error {
 		"msg":        "Diary Delete",
 	}
 
-	id := c.Params("id") // Capture the 'id' from the URL parameters
-
+	id := c.Params("id")
 	var record model.Diary
 
-	// Use the 'id' to find the record
 	database.DBConn.First(&record, id)
+	if record.ID == 0 {
+		log.Println("Record not found")
+		context["msg"] = "Record Not Found"
+		c.Status(404)
+		return c.JSON(context)
+	}
 
-	//if record.ID == 0 {
-	//	log.Println("Record not found")
-	//	context["msg"] = "Record Not Found"
-	//	c.Status(400)
-	//	return c.JSON(context)
-	//}
+	filename := record.Image
+	if err := os.Remove(filename); err != nil {
+		log.Println("Error in deleting file.", err)
+	}
 
 	result := database.DBConn.Delete(&record)
-
 	if result.Error != nil {
 		context["msg"] = "Something Went Wrong"
 		c.Status(400)
 		return c.JSON(context)
 	}
 
-	// Decrement IDs of records greater than the deleted one
-	//if err := database.DBConn.Model(&model.Diary{}).Where("id > ?", id).
-	//	Update("id", gorm.Expr("id - 1")).Error; err != nil {
-	//	context["msg"] = "Failed to update record IDs"
-	//	c.Status(400)
-	//	return c.JSON(context)
-	//}
-
 	context["msg"] = "Record Deleted Successfully"
-	context["statusText"] = "Ok"
-
 	c.Status(200)
 	return c.JSON(context)
 }

@@ -25,5 +25,5 @@ func Authenticate(c *fiber.Ctx)error {
 		
 		
 	}
-	return c.Next()
+	return  c.Next()
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/lokesh2201013/Diary/database"
 	"github.com/lokesh2201013/Diary/routes"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func init() {
@@ -27,8 +28,14 @@ func main() {
 		log.Fatal("Failed to get database handle:", err)
 	}
 	defer sqlDb.Close()
-
+    app := fiber.New()
 	// Fetch port from environment variables
+	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+        AllowOrigins: "*", // or specify allowed origins
+        AllowHeaders: "Origin, Content-Type, Accept",
+        AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
+    }))
 	port := os.Getenv("port")
 	if port == "" {
 		port = "8001" // Default port if not set

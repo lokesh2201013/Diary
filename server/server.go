@@ -28,6 +28,8 @@ func main() {
 	app := fiber.New()
 	// Initialize default config
 app.Use(cors.New())
+app.Static("/static", "./static")
+
 
 // Or extend your config for customization
 app.Use(cors.New(cors.Config{

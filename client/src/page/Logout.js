@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { logoutUser } from "../services/reducers/Authslice";
+//import { logoutUser } from "../services/reducers/Authslice";
 import { useNavigate } from "react-router-dom";
 
 const Logout = () => {
@@ -11,7 +11,7 @@ const Logout = () => {
     //   remove token
     window.localStorage.removeItem("token");
     // unset the user from redux
-    dispatch(logoutUser());
+   // dispatch(logoutUser());
 
     navigate("/", {
       state: "You have successfully logged out.",

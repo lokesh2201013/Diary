@@ -20,35 +20,34 @@ const Add = () => {
 
     const saveForm = async (data) => {
         setLoading(true);
-
+    
         // Get the current date
         const currentDate = new Date();
         const month = currentDate.getMonth() + 1; // getMonth() is zero-based
         const day = currentDate.getDate();
         const year = currentDate.getFullYear();
-
-        // Convert image file to Base64
-        let imageBase64 = null;
+    
+        // Create a FormData object to hold the form fields and the file
+        const formData = new FormData();
+        formData.append("title", data.title);
+        formData.append("post", data.post);
+        formData.append("year", year);
+        formData.append("month", month);
+        formData.append("day", day);
+    
+        // Append the image file if it exists
         if (data.image && data.image[0]) {
-            imageBase64 = await convertFileToBase64(data.image[0]);
+            formData.append("file", data.image[0]); // Use "file" to match the server-side field name
         }
-
-        const jsonData = {
-            title: data.title,
-            post: data.post,
-            year,
-            month,
-            day,
-            //image: imageBase64, // Send image as Base64 string
-        };
-
+    
         try {
             const apiUrl = process.env.REACT_APP_API;
-            const response = await axios.post(apiUrl, jsonData, {
+            const response = await axios.post(apiUrl, formData, {
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "multipart/form-data",
                 },
             });
+    
             if (response.status === 200) {
                 navigate("/"); // Navigate back to the home page after successful submission
             }
