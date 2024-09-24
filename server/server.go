@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/lokesh2201013/Diary/database"
@@ -19,29 +20,34 @@ func init() {
 	database.ConnectDB()
 }
 func main() {
-	sqlDb, err := database.DBConn.DB()
-	if err != nil {
-		panic("Error in SQL connection")
-	}
-	defer sqlDb.Close()
+    sqlDb, err := database.DBConn.DB()
+    if err != nil {
+        panic("Error in SQL connection")
+    }
+    defer sqlDb.Close()
 
-	app := fiber.New()
-	// Initialize default config
-app.Use(cors.New())
-app.Static("/static", "./static")
+    app := fiber.New()
 
+    // Initialize default config
+    app.Use(cors.New())
+    app.Static("/static", "./static")
 
-// Or extend your config for customization
-app.Use(cors.New(cors.Config{
-    AllowOrigins: "*",
-    AllowHeaders: "Origin, Content-Type, Accept",
-}))
+    app.Use(cors.New(cors.Config{
+        AllowOrigins: "*",
+        AllowHeaders: "Origin, Content-Type, Accept",
+    }))
 
+    app.Use(logger.New())
+    router.SetUpRoutes(app)
 
-    app.Use(logger.New( ))
-  router.SetUpRoutes(app)
-	// Start the server and log any errors
-	if err := app.Listen(":8080"); err != nil {
-		log.Fatalf("Error starting server: %v", err)
-	}
+    // Get the PORT from environment variable
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080" // Default for local testing
+    }
+
+    // Start the server and log any errors
+    if err := app.Listen(":" + port); err != nil {
+        log.Fatalf("Error starting server: %v", err)
+    }
 }
