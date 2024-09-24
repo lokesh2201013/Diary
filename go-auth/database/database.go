@@ -16,6 +16,7 @@ func ConnectDB() {
 	password := os.Getenv("password")
 	dbname := os.Getenv("dbname")
 	dbport := os.Getenv("dbport")
+	host:=os.Getenv("host")
 
 	// Debugging: Print environment variables to ensure they are set
 	log.Printf("User: %s, Password: %s, DBName: %s, DBPort: %s", user, password, dbname, dbport)
@@ -25,7 +26,7 @@ func ConnectDB() {
 		panic("One or more environment variables are not set")
 	}
 
-	dsn := "host=localhost port=" + dbport + " user=" + user + " password=" + password + " dbname=" + dbname + " sslmode=disable"
+dsn := "host="+host+ "port=5432 user=" + user + " password=" + password + " dbname=" + dbname + " sslmode=disable"
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Error),
